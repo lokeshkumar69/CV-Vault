@@ -1,6 +1,6 @@
-# ⚡ CV Vault - Complete Cloud Resume Storage & Vault Project
+# ⚡ CV Vault - Backend REST API Service
 
-**CV Vault** is a full-stack resume management application built with Node.js, Express, MongoDB, Azure Blob Storage, Docker, and Azure Container Apps.
+**CV Vault Backend** is a production-ready, pure REST API microservice built with Node.js, Express, MongoDB Atlas, Azure Blob Storage, Docker, and Azure Container Apps.
 
 ---
 
@@ -18,17 +18,31 @@ Copy `.env.example` to `.env`:
 Copy-Item .env.example .env
 ```
 
-### 3. Run the Server
+### 3. Run the Backend API
 ```powershell
 npm start
 ```
-Open your browser at **`http://localhost:5000`**.
+The REST API will start at **`http://localhost:5000`**.
 
 ---
 
-## 🛠 Azure & Production Deployment Commands
+## 🧪 REST API Endpoints & Postman Guide
 
-### Azure Blob Storage Setup
+| Method | Endpoint | Description | Payload / Params |
+| :--- | :--- | :--- | :--- |
+| **GET** | `/` | API Documentation & Welcome JSON | None |
+| **GET** | `/api/health` | Health Check Endpoint | None |
+| **POST** | `/api/resumes/upload` | Upload resume file & save metadata | `multipart/form-data` (`resume` file, `candidateName`, `category`, `tags`, `notes`) |
+| **GET** | `/api/resumes` | Retrieve list of resumes | `?search=keyword` & `?category=Frontend` |
+| **GET** | `/api/resumes/stats/summary` | Get storage size, candidate count, & top categories | None |
+| **GET** | `/api/resumes/:id` | Get single resume details | URL Parameter `:id` |
+| **DELETE** | `/api/resumes/:id` | Delete resume from storage and database | URL Parameter `:id` |
+
+---
+
+## 🛠 Azure Cloud & Docker Commands
+
+### 1. Azure Blob Storage Setup
 ```powershell
 az login
 az group create --name rg-cv-vault --location eastus
@@ -37,26 +51,14 @@ $STORAGE_CONN = az storage account show-connection-string --resource-group rg-cv
 az storage container create --name resumes --connection-string $STORAGE_CONN --public-access blob
 ```
 
-### Azure Key Vault Setup
+### 2. Docker Build & ACR Push
 ```powershell
-az keyvault create --name kv-cvvault-$((Get-Random -Maximum 999)) --resource-group rg-cv-vault --location eastus
-az keyvault secret set --vault-name kv-cvvault-... --name "MongoDBUri" --value "mongodb+srv://..."
-az keyvault secret set --vault-name kv-cvvault-... --name "AzureStorageConn" --value "$STORAGE_CONN"
+docker build -t cv-vault-api .
+docker run -p 5000:5000 --env-file .env cv-vault-api
 ```
 
-### Docker & Azure Container Apps Deployment
+### 3. Azure Container Apps Deployment
 ```powershell
-# Local Docker Build & Test
-docker build -t cv-vault .
-docker run -p 5000:5000 --env-file .env cv-vault
-
-# ACR Push
-az acr create --resource-group rg-cv-vault --name acrcvvault$((Get-Random -Maximum 999)) --sku Basic --admin-enabled true
-az acr login --name acrcvvault...
-docker tag cv-vault acrcvvault....azurecr.io/cv-vault:v1
-docker push acrcvvault....azurecr.io/cv-vault:v1
-
-# Container App Deployment
 az containerapp env create --name env-cv-vault --resource-group rg-cv-vault --location eastus
-az containerapp create --name app-cv-vault --resource-group rg-cv-vault --environment env-cv-vault --image acrcvvault....azurecr.io/cv-vault:v1 --target-port 5000 --ingress external
+az containerapp create --name app-cv-vault-api --resource-group rg-cv-vault --environment env-cv-vault --image acrcvvault....azurecr.io/cv-vault-api:v1 --target-port 5000 --ingress external
 ```

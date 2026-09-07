@@ -10,14 +10,35 @@ const resumeRoutes = require('./routes/resumeRoutes');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Core Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve local upload files for local development mode
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// API Routes
 app.use('/api/resumes', resumeRoutes);
 
+// Root API Endpoint Info
+app.get('/', (req, res) => {
+  res.json({
+    name: 'CV Vault Backend REST API',
+    status: 'online',
+    version: '1.0.0',
+    documentation: {
+      healthCheck: 'GET /api/health',
+      uploadResume: 'POST /api/resumes/upload',
+      listResumes: 'GET /api/resumes',
+      getStats: 'GET /api/resumes/stats/summary',
+      getSingleResume: 'GET /api/resumes/:id',
+      deleteResume: 'DELETE /api/resumes/:id'
+    }
+  });
+});
+
+// Health Check Endpoint
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
@@ -26,13 +47,18 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// 404 Route Handler for unhandled routes
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `API endpoint '${req.originalUrl}' not found.`
+  });
 });
 
+// Start Server & Connections
 const startServer = async () => {
   console.log('--------------------------------------------------');
-  console.log('⚡ Initializing CV Vault Server...');
+  console.log('⚡ Initializing CV Vault Pure Backend Server...');
   console.log('--------------------------------------------------');
 
   await connectDB();
@@ -40,8 +66,8 @@ const startServer = async () => {
 
   const server = app.listen(PORT, () => {
     console.log('--------------------------------------------------');
-    console.log(`🚀 Server running smoothly on http://localhost:${PORT}`);
-    console.log(`📄 Dashboard live at http://localhost:${PORT}`);
+    console.log(`🚀 CV Vault Pure Backend API running on http://localhost:${PORT}`);
+    console.log(`📡 Health Check endpoint: http://localhost:${PORT}/api/health`);
     console.log('--------------------------------------------------');
   });
 

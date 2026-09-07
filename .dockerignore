@@ -1,7 +1,7 @@
 node_modules
 npm-debug.log
 .env
-public/uploads
+uploads
 .git
 .gitignore
 README.md

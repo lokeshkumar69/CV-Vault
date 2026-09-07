@@ -9,7 +9,7 @@ let blobServiceClient = null;
 let containerClient = null;
 let useAzure = false;
 
-const uploadsDir = path.join(__dirname, '..', 'public', 'uploads');
+const uploadsDir = path.join(__dirname, '..', 'uploads');
 
 const initStorage = async () => {
   if (connectionString && connectionString.includes('AccountName=')) {
@@ -79,7 +79,7 @@ const deleteFile = async (storageName, provider = 'azure') => {
 
 const getStorageStatus = () => ({
   provider: useAzure ? 'azure' : 'local',
-  containerName: useAzure ? containerName : 'public/uploads'
+  containerName: useAzure ? containerName : 'uploads'
 });
 
 module.exports = {
