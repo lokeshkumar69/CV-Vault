@@ -88,7 +88,6 @@ def create_presentation():
     p2.font.color.rgb = GRAY
     p2.space_before = Pt(8)
 
-    # Info card box at bottom
     tb_card = slide1.shapes.add_textbox(Inches(1.0), Inches(4.5), Inches(11.33), Inches(2.2))
     tf_card = tb_card.text_frame
     tf_card.word_wrap = True
@@ -211,20 +210,49 @@ def create_presentation():
         p_t.space_after = Pt(12)
 
     # ----------------------------------------------------
-    # Slide 4: Technologies & Tools Learned
+    # Slide 4: Technologies & Tools Learned (Card Grid Layout)
     # ----------------------------------------------------
-    create_bullet_slide(
-        "TECH STACK",
-        "Technologies & Tools Learned Across Azure",
-        [
-            "Compute: Azure App Service (Linux Web Apps), Azure Functions (HTTP Serverless), Azure Container Apps.",
-            "Containers & Registry: Docker Containerization, Azure Container Registry (ACR).",
-            "Storage & Database: Azure Blob Storage (CV Files), Cosmos DB / MongoDB Atlas (NoSQL Metadata).",
-            "Security & Identity: Microsoft Entra ID (Azure AD App Registration & OAuth2), Azure Key Vault (Secrets & Managed Identity).",
-            "DevOps & Observability: Azure DevOps (Service Connections, CI/CD Pipelines), Application Insights (Telemetry & Logging).",
-            "CLI & Testing Tools: Azure CLI, PowerShell Automation, Postman API Testing."
-        ]
-    )
+    slide4 = prs.slides.add_slide(blank_layout)
+    set_slide_background(slide4)
+    add_header(slide4, "TECH STACK & TOOLING", "Technologies & Tools Learned During Training")
+
+    tools_grid = [
+        ("⚡ Azure Compute", "Azure App Service (Linux Web Apps), Azure Functions (HTTP Serverless), Azure Container Apps"),
+        ("🐳 Containers & Registry", "Docker Engine Containerization, Azure Container Registry (ACR) Image Hosting"),
+        ("🗄️ Storage & Databases", "Azure Blob Storage (CV Binary Files), Cosmos DB & MongoDB Atlas (NoSQL Metadata Layer)"),
+        ("🔐 Security & Identity", "Microsoft Entra ID (Azure AD App Registration & OAuth2), Azure Key Vault & Managed Identity"),
+        ("🚀 DevOps & Observability", "Azure DevOps (Service Connections, CI/CD Automation), Application Insights (Logging & Telemetry)"),
+        ("🛠️ CLI & API Testing", "Azure CLI, PowerShell Scripting & Automation, Postman API Testing Suite")
+    ]
+
+    # Render as 2 columns x 3 rows grid
+    col_width = Inches(5.6)
+    row_height = Inches(1.5)
+    start_lefts = [Inches(0.8), Inches(6.8)]
+    start_tops = [Inches(1.6), Inches(3.3), Inches(5.0)]
+
+    for idx, (title, desc) in enumerate(tools_grid):
+        col_idx = idx % 2
+        row_idx = idx // 2
+
+        l = start_lefts[col_idx]
+        t = start_tops[row_idx]
+
+        tb_tool = slide4.shapes.add_textbox(l, t, col_width, row_height)
+        tf_tool = tb_tool.text_frame
+        tf_tool.word_wrap = True
+
+        p_tt = tf_tool.paragraphs[0]
+        p_tt.text = title
+        p_tt.font.size = Pt(17)
+        p_tt.font.bold = True
+        p_tt.font.color.rgb = CYAN
+
+        p_td = tf_tool.add_paragraph()
+        p_td.text = desc
+        p_td.font.size = Pt(14)
+        p_td.font.color.rgb = WHITE
+        p_td.space_before = Pt(4)
 
     # ----------------------------------------------------
     # Slide 5: Project Methodology
